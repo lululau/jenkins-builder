@@ -14,15 +14,17 @@ module Jenkins
         @config = Jenkins::Builder::Config.new
         @secret = Jenkins::Builder::Secret.new
 
-        @client = JenkinsApi::Client.new(server_url: @config.url,
-                                         username: @config.username,
-                                         password: @secret.password)
+        if @config.url && @config.username && @secret.password
+          @client = JenkinsApi::Client.new(server_url: @config.url,
+                                          username: @config.username,
+                                          password: @secret.password)
+        end
       end
 
       def main(args)
         validate_os!
         validate_fzf!
-        Jenkins::Builder::CLI.create_alias_commands(@config.aliases)
+        Jenkins::Builder::CLI.create_alias_commands(@config.aliases || [])
         Jenkins::Builder::CLI.start(args)
       rescue => e
         STDERR.puts(e.message)
@@ -76,7 +78,8 @@ module Jenkins
       end
 
       def build(job)
-        puts job
+        job_name, branch = job.split(':')
+        start_build(job_name, branch)
       end
 
       def all_jobs
