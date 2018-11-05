@@ -40,10 +40,15 @@ module Jenkins
           jobs = fzf(app.all_jobs)
           exit if jobs.empty?
           job = jobs.first
-          branches = fzf(app.all_branches)
-          exit if branches.empty?
-          branch = branches.first
-          jobs = [format('%s:%s', job, branch)]
+
+          if app.job_detail(job).to_s =~ /mbranch/
+            branches = fzf(app.all_branches)
+            exit if branches.empty?
+            branch = branches.first
+            jobs = [format('%s:%s', job, branch)]
+          else
+            jobs = [job]
+          end
         end
         puts "Jobs: #{jobs.join(", ")}"
         app.build_each(jobs)

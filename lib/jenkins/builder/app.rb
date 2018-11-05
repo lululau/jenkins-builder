@@ -87,6 +87,10 @@ module Jenkins
         @config.branches
       end
 
+      def job_detail(job_name)
+        @client.job.list_details(job_name)
+      end
+
       private
 
       def validate_os!
