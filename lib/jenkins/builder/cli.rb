@@ -68,6 +68,8 @@ module Jenkins
         Jenkins::Builder::App.new.delete_alias(name)
       end
 
+      default_task :build
+
       no_commands do
         def read_text(prompt)
           print "#{prompt}"
