@@ -16,14 +16,20 @@ module Jenkins
         end
       end
 
-      desc 'setup', 'Setup URL, username and password.'
+      desc 'setup [-e]', 'Setup URL, username and password, or open config file in an editor when -e specified.'
+      option :edit, type: :boolean, aliases: ['-e']
       def setup
-        url = read_text('Input Jenkins URL: ')
-        username = read_text('Input Username: ')
-        password = read_password('Input Password: ')
-        git_branches = read_text('Input Git Branches: ').split(/\s*,\s*/)
+        if options[:edit]
+          editor = ENV['VISUAL'] || ENV['EDITOR'] || "vim"
+          exec("#{editor} #{File.expand_path('~/.jenkins-builder.yaml')}")
+        else
+          url = read_text('Input Jenkins URL: ')
+          username = read_text('Input Username: ')
+          password = read_password('Input Password: ')
+          git_branches = read_text('Input Git Branches: ').split(/\s*,\s*/)
 
-        Jenkins::Builder::App.new.setup(url: url, username: username, password: password, branches: git_branches)
+          Jenkins::Builder::App.new.setup(url: url, username: username, password: password, branches: git_branches)
+        end
       end
 
       desc 'info [-p]', 'Show saved URL, username, use -p to show password also.'
