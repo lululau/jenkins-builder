@@ -79,7 +79,9 @@ module Jenkins
 
       def build(job)
         job_name, branch = job.split(':')
+        latest_build_no = @client.job.get_current_build_number(job_name)
         start_build(job_name, branch)
+        check_and_show_result(job_name, latest_build_no)
       end
 
       def all_jobs
@@ -102,10 +104,26 @@ module Jenkins
         if use_mbranch?(job_name)
           mbranch_param = {name: 'mbranch', value: branch}
           params = mbranch_param.merge(json: {parameter: mbranch_param}.to_json)
-          @client.api_post_request("/job/#{job_name}/build", params, true)
+          @client.api_post_request("/job/#{job_name}/build?delay=0sec", params, true)
         else
-          @client.api_post_request("/job/#{job_name}/build")
+          @client.api_post_request("/job/#{job_name}/build?delay=0sec")
         end
+      end
+
+      def check_and_show_result(job_name, latest_build_no)
+        while (build_no = @client.job.get_current_build_number(job_name)) <= latest_build_no
+          sleep 1
+        end
+        printed_size = 0
+        loop do
+          console_output = @client.job.get_console_output(job_name, build_no, printed_size, 'text')
+          print console_output['output'].gsub("\r", '')
+          printed_size += console_output['size'].to_i
+          break unless console_output['more']
+          sleep 2
+        end
+        status = @client.job.get_build_details(job_name, build_no)
+        puts "Build Result: [#{status['result']}]"
       end
 
       private
