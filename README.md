@@ -1,28 +1,87 @@
-# Jenkins::Builder
+# jenkins-builder
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/jenkins/builder`. To experiment with that code, run `bin/console` for an interactive prompt.
+`jenkins-builder` is a gem for submit jenkins building tasks from command line.
 
-TODO: Delete this and the text above, and describe your gem
+## Requirements
+
+  1. The gem use macOS KeyChain for managing credentials for logging into jenkins website, so macOS is the only supported OS by now.
+  2. It use the `fzf` fuzzy selecting utility to filter jenkins job names and git branches, so before using this gem, you should install `fzf` first: `brew install fzf`.
 
 ## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'jenkins-builder'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
 
     $ gem install jenkins-builder
 
 ## Usage
 
-TODO: Write usage instructions here
+### Getting help information
+
+    $ jk help
+    
+### Setup
+
+All configuration is stored in `$HOME/.jenkins-builder.yaml` except password.
+
+Password is stored in macOS KeyChain, its service name is `jenkins-builder-credentials`.
+
+#### Setup URL and credentials interactively
+
+Just run: `$ jk setup`
+
+#### Show settings information
+
+    $ jk info
+    
+By default, it does now show password, but if you want it: `$ jk info -p`
+
+#### Edit config file directly
+
+    # jk setup -e
+    
+### Build
+
+#### Specify job identifiers as command line arguments
+
+    $ jk build project1 project2 ...
+
+#### Specify git brand if you use mbranch plugin
+
+    $ jk build project:origin/develop project2:origin/master ...
+    
+#### Suppress console output of build
+
+    $ jk build -s project1 ...
+    
+#### Use fzf to filter job names (project names) or git branch names
+
+Just run `jk build` without job identifiers specified as command line arguments:
+
+    $ jk build
+
+Even just (because `build` is the default task):
+
+    $ jk
+
+### Alias
+
+For most working jobs, you can create aliases for them for convenice.
+
+#### Create an alias
+
+    $ jk alias p1 project1:origin/develop
+
+then you could just run:
+
+    $ jk p1
+    
+it's equivalent to run `jk build project1:origin/develop`
+
+#### List aliases
+
+    $ jk alias
+    
+#### Delete an alias
+
+    $ jk unalias p1
 
 ## Development
 
