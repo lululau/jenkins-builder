@@ -41,7 +41,7 @@ module Jenkins
           exit if jobs.empty?
           job = jobs.first
 
-          if app.job_detail(job).to_s =~ /mbranch/
+          if app.use_mbranch?(job)
             branches = fzf(app.all_branches)
             exit if branches.empty?
             branch = branches.first

@@ -94,6 +94,20 @@ module Jenkins
         @client.job.list_details(job_name)
       end
 
+      def use_mbranch?(job_name)
+        job_detail(job_name).to_s =~ /mbranch/
+      end
+
+      def start_build(job_name, branch)
+        if use_mbranch?(job_name)
+          mbranch_param = {name: 'mbranch', value: branch}
+          params = mbranch_param.merge(json: {parameter: mbranch_param}.to_json)
+          @client.api_post_request("/job/#{job_name}/build", params, true)
+        else
+          @client.api_post_request("/job/#{job_name}/build")
+        end
+      end
+
       private
 
       def validate_os!
