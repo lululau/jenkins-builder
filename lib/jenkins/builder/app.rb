@@ -2,6 +2,8 @@ require 'jenkins/builder/cli'
 require 'jenkins/builder/config'
 require 'jenkins/builder/secret'
 require 'jenkins_api_client'
+require 'pastel'
+require 'tty-spinner'
 
 module Jenkins
   module Builder
@@ -102,12 +104,15 @@ module Jenkins
 
       def start_build(job_name, branch)
         if use_mbranch?(job_name)
+          msg = "#{job_name} with branch #{branch}"
           mbranch_param = {name: 'mbranch', value: branch}
           params = mbranch_param.merge(json: {parameter: mbranch_param}.to_json)
           @client.api_post_request("/job/#{job_name}/build?delay=0sec", params, true)
         else
+          msg = job_name
           @client.api_post_request("/job/#{job_name}/build?delay=0sec")
         end
+        puts Pastel.new.cyan.bold("\n%s%s  %s  %s%s\n" % [' '*30, '★ '*5, msg, '★ '*5, ' '*30])
       end
 
       def check_and_show_result(job_name, latest_build_no)
@@ -115,15 +120,28 @@ module Jenkins
           sleep 1
         end
         printed_size = 0
+        if @options[:silent]
+          spinner = TTY::Spinner.new(':spinner Building ...', format: :bouncing_ball)
+          spinner.auto_spin
+        end
         loop do
           console_output = @client.job.get_console_output(job_name, build_no, printed_size, 'text')
-          print console_output['output'].gsub("\r", '')
+          print console_output['output'].gsub("\r", '') unless @options[:silent]
           printed_size += console_output['size'].to_i
           break unless console_output['more']
           sleep 2
         end
+        if @options[:silent]
+          spinner.stop
+        end
         status = @client.job.get_build_details(job_name, build_no)
-        puts "Build Result: [#{status['result']}]"
+        msg = "Build Result: [#{status['result']}]"
+        pastel = Pastel.new
+        if msg =~ /SUCCESS/
+          puts pastel.green.bold(msg)
+        else
+          puts pastel.red.bold(msg)
+        end
       end
 
       private
