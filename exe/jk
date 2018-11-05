@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'jenkins/builder'
+
+Jenkins::Builder::App.new.main(ARGV)
