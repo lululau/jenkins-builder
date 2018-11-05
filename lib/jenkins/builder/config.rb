@@ -25,12 +25,28 @@ module Jenkins
         @config['username'] = name
       end
 
+      def aliases
+        @config['aliases']
+      end
+
+      def aliases=(aliases)
+        @config['aliases'] = aliases
+      end
+
       def url
         @config['url']
       end
 
       def url=(url)
         @config['url'] = url
+      end
+
+      def branches
+        @config['branches']
+      end
+
+      def branches=(branches)
+        @config['branches'] = branches
       end
 
       def init

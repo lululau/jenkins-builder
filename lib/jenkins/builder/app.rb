@@ -7,19 +7,25 @@ module Jenkins
   module Builder
     class App
 
-      attr_accessor :config, :secret, :client
+      attr_accessor :config, :secret, :client, :options
 
-      def initialize
-        self.config = Jenkins::Builder::Config.new
-        self.secret = Jenkins::Builder::Secret.new
+      def initialize(options={})
+        @options = options
+        @config = Jenkins::Builder::Config.new
+        @secret = Jenkins::Builder::Secret.new
+
+        @client = JenkinsApi::Client.new(server_url: @config.url,
+                                         username: @config.username,
+                                         password: @secret.password)
       end
 
       def main(args)
         validate_os!
         validate_fzf!
+        Jenkins::Builder::CLI.create_alias_commands(@config.aliases)
         Jenkins::Builder::CLI.start(args)
-      # rescue => e
-      #   STDERR.puts(e.message)
+      rescue => e
+        STDERR.puts(e.message)
       end
 
       def setup(options)
@@ -27,6 +33,7 @@ module Jenkins
 
         config.url = options[:url]
         config.username = options[:username]
+        config.branches = options[:branches]
         config.save!
 
         secret.username = options[:username]
@@ -43,6 +50,41 @@ module Jenkins
         INFO
 
         puts "Password: #{@secret.password}" if options[:password]
+      end
+
+      def create_alias(name, job)
+        @config.aliases ||= {}
+        @config.aliases[name] = job
+        @config.save!
+      end
+
+      def delete_alias(name)
+        if @config.aliases.nil? || @config.aliases.empty?
+          return
+        end
+
+        @config.aliases.delete(name)
+        @config.save!
+      end
+
+      def list_aliases
+        p @config.aliases
+      end
+
+      def build_each(jobs)
+        jobs.each { |job| build(job) }
+      end
+
+      def build(job)
+        puts job
+      end
+
+      def all_jobs
+        @client.job.list_all
+      end
+
+      def all_branches
+        @config.branches
       end
 
       private
