@@ -10,6 +10,10 @@
 ## Installation
 
     $ gem install jenkins-builder
+    
+If any permission errors occurs, prepend `sudo`:
+
+    $ sudo gem install jenkins-builder
 
 ## Usage
 
@@ -69,7 +73,7 @@ Or even just (because `build` is the default task):
 
 ### Alias
 
-For most working jobs, you can create aliases for them for convenice.
+For most common used jobs, you can create aliases for them for convenience.
 
 #### Create an alias
 
