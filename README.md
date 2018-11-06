@@ -4,7 +4,7 @@
 
 ## Requirements
 
-  1. The gem use macOS KeyChain for managing credentials for logging into jenkins website, so macOS is the only supported OS by now.
+  1. This gem uses macOS KeyChain for managing credentials for logging into jenkins website, so macOS is the only supported OS by now.
   2. It use the `fzf` fuzzy selecting utility to filter jenkins job names and git branches, so before using this gem, you should install `fzf` first: `brew install fzf`.
 
 ## Installation
@@ -19,9 +19,9 @@
     
 ### Setup
 
-All configuration is stored in `$HOME/.jenkins-builder.yaml` except password.
+All configuration stores in `$HOME/.jenkins-builder.yaml` except password.
 
-Password is stored in macOS KeyChain, its service name is `jenkins-builder-credentials`.
+Password stores in macOS KeyChain, KeyChain service name is `jenkins-builder-credentials`.
 
 #### Setup URL and credentials interactively
 
@@ -31,7 +31,7 @@ Just run: `$ jk setup`
 
     $ jk info
     
-By default, it does now show password, but if you want it: `$ jk info -p`
+By default, password will not be shown, but if you want:  `$ jk info -p`
 
 #### Edit config file directly
 
@@ -42,6 +42,12 @@ By default, it does now show password, but if you want it: `$ jk info -p`
 #### Specify job identifiers as command line arguments
 
     $ jk build project1 project2 ...
+    
+#### Fail-Fast
+
+If multiple jobs are specified, all jobs will be built by default. If yout wanna cancel all subsequent jobs after some job failed, use `-f` option of `build` command:
+
+    # jk build -f project1 project2 ...
 
 #### Specify git brand if you use mbranch plugin
 
@@ -57,7 +63,7 @@ Just run `jk build` without job identifiers specified as command line arguments:
 
     $ jk build
 
-Even just (because `build` is the default task):
+Or even just (because `build` is the default task):
 
     $ jk
 
@@ -67,7 +73,7 @@ For most working jobs, you can create aliases for them for convenice.
 
 #### Create an alias
 
-    $ jk alias p1 project1:origin/develop
+    $ jk alias p1 'build project1:origin/develop'
 
 then you could just run:
 
