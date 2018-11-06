@@ -56,9 +56,9 @@ module Jenkins
         puts "Password: #{@secret.password}" if options[:password]
       end
 
-      def create_alias(name, job)
+      def create_alias(name, command)
         @config.aliases ||= {}
-        @config.aliases[name] = job
+        @config.aliases[name] = command
         @config.save!
       end
 
@@ -72,7 +72,9 @@ module Jenkins
       end
 
       def list_aliases
-        p @config.aliases
+        @config.aliases.each do |k, v|
+          puts "`%s' is alias for `%s'" % [k, v]
+        end
       end
 
       def build_each(jobs)

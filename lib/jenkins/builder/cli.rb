@@ -1,5 +1,6 @@
 require 'thor'
 require 'io/console'
+require 'shellwords'
 
 module Jenkins
   module Builder
@@ -7,10 +8,10 @@ module Jenkins
 
       class << self
         def create_alias_commands(aliases)
-          aliases.each do |name, job|
-            desc "#{name}", "alias for: #{job}"
-            define_method name do
-              Jenkins::Builder::App.new.build(job)
+          aliases.each do |name, command|
+            desc "#{name}", "alias for: #{command}"
+            define_method name do |*args|
+              self.class.start(Shellwords.split(command) + args)
             end
           end
         end
@@ -60,13 +61,13 @@ module Jenkins
         app.build_each(jobs)
       end
 
-      desc 'alias <ALIAS> <JOB_IDENTIFIER>', 'Create job alias'
-      def alias(name=nil, job=nil)
-        if name.nil? || job.nil?
+      desc 'alias <ALIAS> <COMMAND>', 'Create alias'
+      def alias(name=nil, command=nil)
+        if name.nil? || command.nil?
           Jenkins::Builder::App.new.list_aliases
           exit
         end
-        Jenkins::Builder::App.new.create_alias(name, job)
+        Jenkins::Builder::App.new.create_alias(name, command)
       end
 
       desc 'unalias <ALIAS>', 'Delete alias'
