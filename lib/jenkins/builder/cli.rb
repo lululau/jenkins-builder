@@ -18,7 +18,7 @@ module Jenkins
       end
 
       desc 'setup [-e]', 'Setup URL, username and password, or open config file in an editor when -e specified.'
-      option :edit, type: :boolean, aliases: ['-e']
+      option :edit, type: :boolean, aliases: ['-e'], desc: 'open config file in an editor'
       def setup
         if options[:edit]
           editor = ENV['VISUAL'] || ENV['EDITOR'] || "vim"
@@ -34,15 +34,16 @@ module Jenkins
       end
 
       desc 'info [-p]', 'Show saved URL, username, use -p to show password also.'
-      option :password, type: :boolean, aliases: ['-p']
+      option :password, type: :boolean, aliases: ['-p'], desc: 'show password also.'
       def info
         Jenkins::Builder::App.new.print_info(options)
       end
 
-      desc 'build [-s] <JOB_IDENTIFIERS>', 'Build jobs'
-      option :silent, type: :boolean, aliases: ['-s']
+      desc 'build [-s] [-f] <JOB_IDENTIFIERS>', 'Build jobs'
+      option :silent, type: :boolean, aliases: ['-s'], desc: 'suppress console output.'
+      option :failfast, type: :boolean, aliases: ['-f'], desc: 'stop immediately when building fails.'
       def build(*jobs)
-        app = Jenkins::Builder::App.new(silent: options[:silent])
+        app = Jenkins::Builder::App.new(options)
         if jobs.empty?
           jobs = fzf(app.all_jobs)
           exit if jobs.empty?
@@ -61,7 +62,7 @@ module Jenkins
         app.build_each(jobs)
       end
 
-      desc 'alias <ALIAS> <COMMAND>', 'Create alias'
+      desc 'alias <ALIAS> <COMMAND>', 'Create alias or with no arguments given, it print all aliases.'
       def alias(name=nil, command=nil)
         if name.nil? || command.nil?
           Jenkins::Builder::App.new.list_aliases

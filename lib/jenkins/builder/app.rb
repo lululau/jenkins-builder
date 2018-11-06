@@ -78,7 +78,11 @@ module Jenkins
       end
 
       def build_each(jobs)
-        jobs.each { |job| build(job) }
+        if @options[:failfast]
+          jobs.find { |job| build(job).nil? }
+        else
+          jobs.each { |job| build(job) }
+        end
       end
 
       def build(job)
@@ -144,6 +148,8 @@ module Jenkins
         else
           puts pastel.red.bold(msg)
         end
+
+        msg =~ /SUCCESS/
       end
 
       private
