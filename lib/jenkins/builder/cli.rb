@@ -9,7 +9,7 @@ module Jenkins
       class << self
         def create_alias_commands(aliases)
           aliases.each do |name, command|
-            desc "#{name}", "alias for: #{command}"
+            desc "#{name}", "Alias for: `#{command}'"
             define_method name do |*args|
               self.class.start(Shellwords.split(command) + args)
             end
@@ -45,7 +45,7 @@ module Jenkins
       def build(*jobs)
         app = Jenkins::Builder::App.new(options)
         if jobs.empty?
-          jobs = fzf(app.all_jobs)
+          jobs = fzf(app.fetch_all_jobs)
           exit if jobs.empty?
           job = jobs.first
 
@@ -74,6 +74,11 @@ module Jenkins
       desc 'unalias <ALIAS>', 'Delete alias'
       def unalias(name)
         Jenkins::Builder::App.new.delete_alias(name)
+      end
+
+      desc 'refresh-jobs-cache', 'Refresh cache of job names'
+      def refresh_jobs_cache
+        Jenkins::Builder::App.new.refresh_jobs_cache
       end
 
       default_task :build

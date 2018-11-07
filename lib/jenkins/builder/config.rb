@@ -17,6 +17,14 @@ module Jenkins
         end
       end
 
+      def [](k)
+        @config[k]
+      end
+
+      def []=(k, v)
+        @config[k] = v
+      end
+
       def username
         @config['username']
       end

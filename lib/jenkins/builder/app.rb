@@ -4,6 +4,7 @@ require 'jenkins/builder/secret'
 require 'jenkins_api_client'
 require 'pastel'
 require 'tty-spinner'
+require 'time'
 
 module Jenkins
   module Builder
@@ -90,6 +91,24 @@ module Jenkins
         latest_build_no = @client.job.get_current_build_number(job_name)
         start_build(job_name, branch)
         check_and_show_result(job_name, latest_build_no)
+      end
+
+      def fetch_all_jobs
+        refresh_jobs_cache unless validate_jobs_cache
+        @config['jobs-cache']['jobs']
+      end
+
+      def refresh_jobs_cache
+        @config['jobs-cache'] = {
+          'expire' => (Time.now + 86400*30).strftime('%F %T'),
+          'jobs' => all_jobs
+        }
+        @config.save!
+      end
+
+      def validate_jobs_cache
+        @config['jobs-cache'] && !@config['jobs-cache'].empty? && \
+          Time.parse(@config['jobs-cache']['expire']) > Time.now
       end
 
       def all_jobs
