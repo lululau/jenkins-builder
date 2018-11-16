@@ -27,7 +27,7 @@ module Jenkins
           url = read_text('Input Jenkins URL: ')
           username = read_text('Input Username: ')
           password = read_password('Input Password: ')
-          git_branches = read_text('Input Git Branches: ').split(/\s*,\s*/)
+          git_branches = read_text('Input Git Branches separated by comma, e.g. origin/develop,origin/master: ').split(/\s*,\s*/)
 
           Jenkins::Builder::App.new.setup(url: url, username: username, password: password, branches: git_branches)
         end
