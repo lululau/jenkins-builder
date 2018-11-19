@@ -57,6 +57,12 @@ module Jenkins
         @config['branches'] = branches
       end
 
+      def hooks_of(job)
+        hooks = @config['hooks'] && @config['hooks'][job]
+        hooks = [hooks] if hooks.is_a?(String)
+        hooks
+      end
+
       def init
         @config = {}
         save(@config, @file)

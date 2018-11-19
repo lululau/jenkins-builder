@@ -149,8 +149,12 @@ module Jenkins
           spinner = TTY::Spinner.new(':spinner Building ...', format: :bouncing_ball)
           spinner.auto_spin
         end
+
+        all_console_output = ''
+
         loop do
           console_output = @client.job.get_console_output(job_name, build_no, printed_size, 'text')
+          all_console_output << console_output['output']
           print console_output['output'].gsub("\r", '') unless @options[:silent]
           printed_size += console_output['size'].to_i
           break unless console_output['more']
@@ -166,6 +170,21 @@ module Jenkins
           puts pastel.green.bold(msg)
         else
           puts pastel.red.bold(msg)
+        end
+
+        if hooks = @config.hooks_of(job_name)
+          hooks.each do |hook|
+            puts pastel.green('Execute hook: "%s"' % hook)
+            begin
+              IO.popen(hook, 'r+') do |process|
+                process.print(all_console_output)
+                process.each { |line| print line }
+              end
+            rescue Interrupt
+              puts
+              puts pastel.red('User Canceld hook: "%s"' % hook)
+            end
+          end
         end
 
         msg =~ /SUCCESS/
