@@ -92,6 +92,36 @@ it's equivalent to run `jk build project1:origin/develop`
 #### Delete an alias
 
     $ jk unalias p1
+    
+### Hooks
+
+You can add hooks into configuration, which will be executed after a job build finished, the console output will be sent to the hook process as STDIN. See Config Example.
+
+
+### Config Example
+
+```
+---
+url: http://jenkins.example.com
+username: lululau
+branches:
+- origin/develop
+- origin/staging
+- origin/master
+aliases:
+  kd: build kubernetes:origin/develop
+  km: build kubernetes:origin/master
+  lc: build linux_core
+hooks:
+  linux_core: "ssh my_server 'cd /var/logs/ && tail -f $(ls -t | head -1)'"
+  kubernetes: "/my/local/machine/clean.sh"
+jobs-cache:
+  expire: '2018-12-16 11:25:11'
+  jobs:
+  - kubernetes 
+  - linux_core
+  - my_e_shop
+```
 
 ## Development
 
