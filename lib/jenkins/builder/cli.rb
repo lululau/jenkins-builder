@@ -110,6 +110,7 @@ module Jenkins
         def fzf(lines)
           IO.popen('fzf', 'r+') do |p|
             p.puts(lines.join("\n"))
+            p.close_write
             p.readlines.map(&:chomp)
           end
         end
