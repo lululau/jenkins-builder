@@ -42,7 +42,12 @@ module Jenkins
       desc 'build [-s] [-f] <JOB_IDENTIFIERS>', 'Build jobs'
       option :silent, type: :boolean, aliases: ['-s'], desc: 'suppress console output.'
       option :failfast, type: :boolean, aliases: ['-f'], desc: 'stop immediately when building fails.'
+      option :version, type: :boolean, aliases: ['-v'], desc: 'Show version.'
       def build(*jobs)
+        if options[:version]
+          puts Jenkins::Builder::VERSION
+          exit
+        end
         app = Jenkins::Builder::App.new(options)
         if jobs.empty?
           jobs = fzf(app.fetch_all_jobs)
@@ -79,6 +84,11 @@ module Jenkins
       desc 'refresh-jobs-cache', 'Refresh cache of job names'
       def refresh_jobs_cache
         Jenkins::Builder::App.new.refresh_jobs_cache
+      end
+
+      desc 'version', 'Print version'
+      def version
+        puts Jenkins::Builder::VERSION
       end
 
       default_task :build
