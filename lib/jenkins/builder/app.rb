@@ -153,12 +153,13 @@ module Jenkins
         all_console_output = ''
 
         loop do
-          console_output = @client.job.get_console_output(job_name, build_no, printed_size, 'text')
-          all_console_output << console_output['output']
-          print console_output['output'].gsub("\r", '') unless @options[:silent]
-          printed_size += console_output['size'].to_i
+          # require 'pry'; binding.pry;
+          console_output = @client.job.get_console_output(job_name, build_no, 0, 'text')
+          all_console_output = console_output['output']
+          print console_output['output'][printed_size..-1] unless @options[:silent]
+          printed_size = console_output['output'].size
           break unless console_output['more']
-          sleep 2
+          sleep 0.5
         end
         if @options[:silent]
           spinner.stop
