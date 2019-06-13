@@ -9,7 +9,7 @@ PATH
       tty-spinner (~> 0.8.0)
 
 GEM
-  remote: https://rubygems.org/
+  remote: https://gems.ruby-china.com/
   specs:
     byebug (10.0.2)
     coderay (1.1.2)

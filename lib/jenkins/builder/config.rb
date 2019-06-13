@@ -33,6 +33,14 @@ module Jenkins
         @config['username'] = name
       end
 
+      def password
+        @config['password']
+      end
+
+      def password=(passwd)
+        @config['password'] = passwd
+      end
+
       def aliases
         @config['aliases']
       end

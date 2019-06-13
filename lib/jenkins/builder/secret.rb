@@ -1,4 +1,5 @@
-require 'security'
+$is_mac = `uname`.chomp == 'Darwin'
+require 'security' if $is_mac
 
 module Jenkins
   module Builder

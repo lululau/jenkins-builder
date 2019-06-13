@@ -6,6 +6,8 @@ require 'pastel'
 require 'tty-spinner'
 require 'time'
 
+$is_mac = `uname`.chomp == 'Darwin'
+
 module Jenkins
   module Builder
     class App
@@ -15,7 +17,7 @@ module Jenkins
       def initialize(options={})
         @options = options
         @config = Jenkins::Builder::Config.new
-        @secret = Jenkins::Builder::Secret.new
+        @secret = ($is_mac ? Jenkins::Builder::Secret.new : @config)
 
         if @config.url && @config.username && @secret.password
           @client = JenkinsApi::Client.new(server_url: @config.url,
@@ -25,7 +27,7 @@ module Jenkins
       end
 
       def main(args)
-        validate_os!
+        # validate_os!
         validate_fzf!
         Jenkins::Builder::CLI.create_alias_commands(@config.aliases || [])
         Jenkins::Builder::CLI.start(args)
