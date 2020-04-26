@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'pastel', '~> 0.7.2'
   spec.add_dependency 'tty-spinner', '~> 0.8.0'
 
-  spec.add_development_dependency "bundler", "~> 1.16"
+  spec.add_development_dependency "bundler", "~> 2.1.2"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "pry", "~> 0.11.3"

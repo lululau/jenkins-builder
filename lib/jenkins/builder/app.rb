@@ -5,6 +5,24 @@ require 'jenkins_api_client'
 require 'pastel'
 require 'tty-spinner'
 require 'time'
+require 'cgi'
+
+
+module JenkinsApi
+  module UriHelper
+    # Encode a string for using in the query part of an URL
+    #
+    def form_encode(string)
+      URI.encode_www_form_component string.encode(Encoding::UTF_8)
+    end
+
+    # Encode a string for use in the hiearchical part of an URL
+    #
+    def path_encode(path)
+      CGI.escape(path.encode(Encoding::UTF_8))
+    end
+  end
+end
 
 $is_mac = `uname`.chomp == 'Darwin'
 
