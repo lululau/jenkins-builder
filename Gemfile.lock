@@ -64,7 +64,7 @@ GEM
     tty-spinner (0.8.0)
       tty-cursor (>= 0.5.0)
     unicode-display_width (1.4.0)
-    yard (0.9.16)
+    yard (0.9.24)
 
 PLATFORMS
   ruby
