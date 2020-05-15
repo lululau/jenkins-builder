@@ -1,6 +1,5 @@
 require 'jenkins/builder/cli'
 require 'jenkins/builder/config'
-require 'jenkins/builder/secret'
 require 'jenkins_api_client'
 require 'pastel'
 require 'tty-spinner'
@@ -24,33 +23,22 @@ module JenkinsApi
   end
 end
 
-$is_mac = `uname`.chomp == 'Darwin'
-
 module Jenkins
   module Builder
     class App
 
-      attr_accessor :config, :secret, :client, :options
+      attr_accessor :config, :client, :options
 
       def initialize(options={})
         @options = options
-        @config = Jenkins::Builder::Config.new
-        @secret = ($is_mac ? Jenkins::Builder::Secret.new : @config)
+        @service = @options[:service]
+        @config = Jenkins::Builder::Config.new(@service)
 
-        if @config.url && @config.username && @secret.password
+        if @config.url && @config.username && @config.password
           @client = JenkinsApi::Client.new(server_url: @config.url,
                                           username: @config.username,
-                                          password: @secret.password)
+                                          password: @config.password)
         end
-      end
-
-      def main(args)
-        # validate_os!
-        validate_fzf!
-        Jenkins::Builder::CLI.create_alias_commands(@config.aliases || [])
-        Jenkins::Builder::CLI.start(args)
-      rescue => e
-        STDERR.puts(e.message)
       end
 
       def setup(options)
@@ -59,11 +47,8 @@ module Jenkins
         config.url = options[:url]
         config.username = options[:username]
         config.branches = options[:branches]
+        config.password = options[:password]
         config.save!
-
-        secret.username = options[:username]
-        secret.password = options[:password]
-        secret.save!
 
         puts 'Credentials setup successfully.'
       end
@@ -74,7 +59,7 @@ module Jenkins
         Username: #{@config.username}
         INFO
 
-        puts "Password: #{@secret.password}" if options[:password]
+        puts "Password: #{@config.password}" if options[:password]
       end
 
       def create_alias(name, command)
@@ -115,11 +100,11 @@ module Jenkins
 
       def fetch_all_jobs
         refresh_jobs_cache unless validate_jobs_cache
-        @config['jobs-cache']['jobs']
+        @config['services'][@service]['jobs-cache']['jobs']
       end
 
       def refresh_jobs_cache
-        @config['jobs-cache'] = {
+        @config['services'][@service]['jobs-cache'] = {
           'expire' => (Time.now + 86400*30).strftime('%F %T'),
           'jobs' => all_jobs
         }
@@ -127,8 +112,8 @@ module Jenkins
       end
 
       def validate_jobs_cache
-        @config['jobs-cache'] && !@config['jobs-cache'].empty? && \
-          Time.parse(@config['jobs-cache']['expire']) > Time.now
+        @config['services'][@service]['jobs-cache'] && !@config['services'][@service]['jobs-cache'].empty? && \
+          Time.parse(@config['services'][@service]['jobs-cache']['expire']) > Time.now
       end
 
       def all_jobs
@@ -173,7 +158,6 @@ module Jenkins
         all_console_output = ''
 
         loop do
-          # require 'pry'; binding.pry;
           console_output = @client.job.get_console_output(job_name, build_no, 0, 'text')
           all_console_output = console_output['output']
           print console_output['output'][printed_size..-1] unless @options[:silent]
@@ -212,16 +196,6 @@ module Jenkins
       end
 
       private
-
-      def validate_os!
-        raise 'Darwin is the only supported OS now.' unless `uname`.chomp == 'Darwin'
-      end
-
-      def validate_fzf!
-        `fzf --version`
-      rescue Errno::ENOENT
-        raise 'Required command fzf is not installed.'
-      end
 
       def validate_credentials!(options)
         @client = JenkinsApi::Client.new(server_url: options[:url],

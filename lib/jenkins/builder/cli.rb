@@ -7,6 +7,12 @@ module Jenkins
     class CLI < ::Thor
 
       class << self
+        def main(args)
+          validate_fzf!
+          @config = Jenkins::Builder::Config.new
+          create_alias_commands(@config.aliases || [])
+          start(args)
+        end
         def create_alias_commands(aliases)
           aliases.each do |name, command|
             desc "#{name}", "Alias for: `#{command}'"
@@ -15,7 +21,16 @@ module Jenkins
             end
           end
         end
+
+        def validate_fzf!
+          `fzf --version`
+        rescue Errno::ENOENT
+          raise 'Required command fzf is not installed.'
+        end
+
       end
+
+      class_option :service, type: :string, aliases: ['-s'], desc: 'Specify service name'
 
       desc 'setup [-e]', 'Setup URL, username and password, or open config file in an editor when -e specified.'
       option :edit, type: :boolean, aliases: ['-e'], desc: 'open config file in an editor'
@@ -39,8 +54,8 @@ module Jenkins
         Jenkins::Builder::App.new.print_info(options)
       end
 
-      desc 'build [-s] [-f] <JOB_IDENTIFIERS>', 'Build jobs'
-      option :silent, type: :boolean, aliases: ['-s'], desc: 'suppress console output.'
+      desc 'build [-q] [-f] <JOB_IDENTIFIERS>', 'Build jobs'
+      option :quiet, type: :boolean, aliases: ['-q'], desc: 'suppress console output.'
       option :failfast, type: :boolean, aliases: ['-f'], desc: 'stop immediately when building fails.'
       option :version, type: :boolean, aliases: ['-v'], desc: 'Show version.'
       def build(*jobs)

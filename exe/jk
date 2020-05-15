@@ -2,4 +2,4 @@
 
 require 'jenkins/builder'
 
-Jenkins::Builder::App.new.main(ARGV)
+Jenkins::Builder::CLI.main(ARGV)
