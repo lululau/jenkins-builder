@@ -85,9 +85,19 @@ module Jenkins
 
       def build_each(jobs)
         if @options[:failfast]
-          jobs.find { |job| build(job).nil? }
+          failed_job = jobs.find { |job| build(job).nil? }
+          if failed_job
+            exit 1
+          else
+            exit 0
+          end
         else
-          jobs.each { |job| build(job) }
+          results = jobs.map { |job| build(job) }
+          if results.any? { |r| r.nil? }
+            exit 1
+          else
+            exit 0
+          end
         end
       end
 
