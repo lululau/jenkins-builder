@@ -63,7 +63,13 @@ module Jenkins
           puts Jenkins::Builder::VERSION
           exit
         end
-        app = Jenkins::Builder::App.new(options)
+        if options.service.nil?
+          service = fzf(Config.new().services).first
+          exit if service.nil?
+        else
+          service = options.service
+        end
+        app = Jenkins::Builder::App.new(service, options)
         if jobs.empty?
           jobs = fzf(app.fetch_all_jobs)
           exit if jobs.empty?

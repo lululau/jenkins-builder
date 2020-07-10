@@ -26,6 +26,10 @@ module Jenkins
         @config[k] = v
       end
 
+      def services
+        @config['services'].keys
+      end
+
       def username
         @config['services'][@service]['username']
       end

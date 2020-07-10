@@ -29,9 +29,9 @@ module Jenkins
 
       attr_accessor :config, :client, :options
 
-      def initialize(options={})
+      def initialize(service, options={})
         @options = options
-        @service = @options[:service]
+        @service = service
         @config = Jenkins::Builder::Config.new(@service)
 
         if @config.url && @config.username && @config.password
