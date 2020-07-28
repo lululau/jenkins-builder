@@ -165,7 +165,7 @@ module Jenkins
       end
 
       def start_build_use_ferrum(job_name, branch)
-        browser = Ferrum::Browser.new(headless: false)
+        browser = Ferrum::Browser.new
         browser.goto("#{config.url}/login")
         username_input = browser.at_css('input[name=j_username]')
         password_input = browser.at_css('input[name=j_password]')
