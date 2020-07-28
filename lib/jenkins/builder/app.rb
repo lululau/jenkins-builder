@@ -5,6 +5,7 @@ require 'pastel'
 require 'tty-spinner'
 require 'time'
 require 'cgi'
+require 'ferrum'
 
 
 module JenkinsApi
@@ -147,12 +148,40 @@ module Jenkins
           msg = "#{job_name} with branch #{branch}"
           mbranch_param = {name: 'mbranch', value: branch}
           params = mbranch_param.merge(json: {parameter: mbranch_param}.to_json)
-          @client.api_post_request("/job/#{job_name}/build?delay=0sec", params, true)
+          begin
+            @client.api_post_request("/job/#{job_name}/build?delay=0sec", params, true)
+          rescue JenkinsApi::Exceptions::ForbiddenWithCrumb => e
+            start_build_use_ferrum(job_name, branch)
+          end
         else
           msg = job_name
-          @client.api_post_request("/job/#{job_name}/build?delay=0sec")
+          begin
+            @client.api_post_request("/job/#{job_name}/build?delay=0sec")
+          rescue JenkinsApi::Exceptions::ForbiddenWithCrumb => e
+            start_build_use_ferrum(job_name, nil)
+          end
         end
         puts Pastel.new.cyan.bold("\n%s%s  %s  %s%s\n" % [' '*30, '★ '*5, msg, '★ '*5, ' '*30])
+      end
+
+      def start_build_use_ferrum(job_name, branch)
+        browser = Ferrum::Browser.new(headless: false)
+        browser.goto("#{config.url}/login")
+        username_input = browser.at_css('input[name=j_username]')
+        password_input = browser.at_css('input[name=j_password]')
+        username_input.focus.type(config.username)
+        password_input.focus.type(config.password)
+        browser.at_css('input[name=Submit]').click
+        if branch
+          browser.goto("#{config.url}/job/#{job_name}/build?delay=0sec")
+          sleep(2)
+          browser.evaluate("document.querySelector('#gitParameterSelect').value = '#{branch}'")
+          browser.at_css('#yui-gen1-button').click
+        else
+          browser.goto("#{config.url}/job/#{job_name}/")
+          browser.at_xpath('#tasks a.task-link').click
+        end
+        browser.quit
       end
 
       def check_and_show_result(job_name, latest_build_no)
