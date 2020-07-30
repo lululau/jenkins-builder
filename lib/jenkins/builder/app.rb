@@ -165,7 +165,7 @@ module Jenkins
       end
 
       def start_build_use_ferrum(job_name, branch)
-        browser = Ferrum::Browser.new
+        browser = Ferrum::Browser.new(headless: true)
         browser.goto("#{config.url}/login")
         username_input = browser.at_css('input[name=j_username]')
         password_input = browser.at_css('input[name=j_password]')
@@ -179,7 +179,7 @@ module Jenkins
           browser.at_css('#yui-gen1-button').click
         else
           browser.goto("#{config.url}/job/#{job_name}/")
-          browser.at_xpath('#tasks a.task-link').click
+          browser.at_css('#tasks a.task-link[onclick^=return\ build]').click
         end
         browser.quit
       end
