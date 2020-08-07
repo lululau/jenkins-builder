@@ -55,7 +55,7 @@ module Jenkins
       end
 
       def url
-        @config['services'][@service]['url']
+        @service && @config['services'][@service]['url']
       end
 
       def url=(url)

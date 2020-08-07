@@ -30,7 +30,7 @@ module Jenkins
 
       attr_accessor :config, :client, :options
 
-      def initialize(service, options={})
+      def initialize(service = nil, options={})
         @options = options
         @service = service
         @config = Jenkins::Builder::Config.new(@service)
@@ -80,7 +80,7 @@ module Jenkins
 
       def list_aliases
         @config.aliases.each do |k, v|
-          puts "`%s' is alias for `%s'" % [k, v]
+          puts "%-10s -->     %s" % [k, v]
         end
       end
 
