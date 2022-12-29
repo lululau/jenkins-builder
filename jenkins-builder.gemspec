@@ -30,14 +30,13 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency 'thor', '~> 0.20.0'
+  spec.add_dependency 'thor', '~> 1.2.1'
   spec.add_dependency 'jenkins_api_client', '~> 1.5.3'
-  spec.add_dependency 'security', '~> 0.1.3'
-  spec.add_dependency 'pastel', '~> 0.7.2'
-  spec.add_dependency 'tty-spinner', '~> 0.8.0'
-  spec.add_dependency 'ferrum', '~> 0.9'
+  spec.add_dependency 'security', '~> 0.1.5'
+  spec.add_dependency 'pastel', '~> 0.8.0'
+  spec.add_dependency 'tty-spinner', '~> 0.9.3'
+  spec.add_dependency 'ferrum', '~> 0.13'
 
-  spec.add_development_dependency "bundler", "~> 2.1.2"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "pry", "~> 0.11.3"
