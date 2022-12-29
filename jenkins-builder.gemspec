@@ -37,7 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'tty-spinner', '~> 0.9.3'
   spec.add_dependency 'ferrum', '~> 0.13'
 
-  spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "rake", "~> 13.0.6"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "pry", "~> 0.11.3"
   spec.add_development_dependency "pry-doc", "~> 0.13.4"
