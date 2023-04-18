@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    jenkins-builder (0.3.3)
+    jenkins-builder (0.3.4)
       ferrum (~> 0.13)
       jenkins_api_client (~> 1.5.3)
       pastel (~> 0.8.0)
