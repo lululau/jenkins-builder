@@ -7,6 +7,26 @@ require 'time'
 require 'cgi'
 require 'ferrum'
 
+module JenkinsApi
+  class Client
+    alias :original_make_http_request :make_http_request
+
+    # retry 10 times if IO::TimeoutError raised
+    def make_http_request(request, follow_redirect = @follow_redirects)
+      retries = 10
+      begin
+        original_make_http_request(request, follow_redirect)
+      rescue IO::TimeoutError, Net::ReadTimeout, Net::OpenTimeout => e
+        retries -= 1
+        if retries > 0
+          retry
+        else
+          raise e
+        end
+      end
+    end
+  end
+end
 
 module JenkinsApi
   module UriHelper
@@ -37,6 +57,9 @@ module Jenkins
 
         if @config.url && @config.username && @config.password
           @client = JenkinsApi::Client.new(server_url: @config.url,
+                                           timeout: 1,
+                                           http_open_timeout: 1,
+                                           http_read_timeout: 1,
                                           username: @config.username,
                                           password: @config.password)
         end
@@ -238,8 +261,12 @@ module Jenkins
 
       def validate_credentials!(options)
         @client = JenkinsApi::Client.new(server_url: options[:url],
+                                         timeout: 1,
+                                         http_open_timeout: 1,
+                                         http_read_timeout: 1,
                                          username: options[:username],
                                          password: options[:password])
+
         @client.job.list_all
       rescue JenkinsApi::Exceptions::Unauthorized => e
         raise e.message
